@@ -13,7 +13,6 @@ program bastion.aleo {
     mapping blacklist: address => bool;
     mapping mode:bool => u8;
 
-
     struct Proposal {
         id: u64,
         operation: u8,
@@ -78,32 +77,26 @@ program bastion.aleo {
          return then finalize(receiver);
     }
         finalize add_to_blacklist(receiver:address){
-            let current_mode:u8 =Mapping::get_or_use(mode,true,0u8);
+            let current_mode: u8 = Mapping::get_or_use(mode, true, 0u8);
             assert_eq(current_mode, MODES_BLACKLIST);
-            Mapping::set(blacklist,receiver,true);
+            Mapping::set(blacklist, receiver, true);
         }
-        transition add_to_whitelist(receiver:address){
-            return then finalize(receiver);    
+        transition add_to_whitelist(receiver: address){
+            return then finalize(receiver); 
         }
-        finalize add_to_whitelist(receiver:address){
-            let current_mode:u8 =Mapping::get_or_use(mode,true,0u8);
+        finalize add_to_whitelist(receiver: address){
+            let current_mode: u8 = Mapping::get_or_use(mode, true, 0u8);
             assert_eq(current_mode, MODES_WHITELIST);
-            Mapping::set(whitelist,receiver,true);
+            Mapping::set(whitelist, receiver, true);
         }
-        transition switch_mode(new_mode:u8){
-            assert(new_mode<4u8);
+        transition switch_mode(new_mode: u8){
+            assert(new_mode < 4u8);
             return then finalize(new_mode);
         }
-        finalize switch_mode(new_mode:u8){
-            // let current_mode:u8 =Mapping::get_or_use(mode,true,0u8);
-            // assert_neq(new_mode,current_mode);
-            Mapping::set(mode,true,new_mode);
+        finalize switch_mode(new_mode: u8){
+            Mapping::set(mode, true, new_mode);
         }
-        transition transfer(beneficiary::address,amount:u64){
-            credits.leo/transfer_public_to_private(beneficiary,amount)
-
+        transition transfer(beneficiary: address, amount: u64){
+            credits.leo/transfer_public_to_private(beneficiary, amount)
         }
-        
-
-
 }
