@@ -1,0 +1,8 @@
+{
+  "node_url": "https://vm.aleo.org/api",
+  "bastion": {
+    "id": "bastion.aleo",
+    "add_blacklist_functon": "add_to_blacklist",
+    "add_blacklist_fee": 3000000
+  }
+}
