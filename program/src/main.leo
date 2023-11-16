@@ -1,15 +1,16 @@
-import credits.leo
-program bastion.aleo {
-    const MODE_FROZEN: u8 = 0u8;
-    const MODE_ENABLED: u8 = 1u8;
-    const MODE_BLACKLIST: u8 = 2u8;
-    const MODE_WHITELIST: u8 = 3u8;
+import credits.leo;
 
-    const OP_ADD_SIGNER: u8 = 0u8;
-    const OP_SWITCH_MODE: u8 = 1u8;
-    const OP_ADD_TO_BLACKLIST: u8 = 2u8;
-    const OP_ADD_TO_WHITELIST: u8 = 3u8;
-    const OP_TRANSFER: u8 = 4u8;
+program bastion.aleo {
+    // const MODE_FROZEN: u8 = 0u8;
+    // const MODE_ENABLED: u8 = 1u8;
+    // const MODE_BLACKLIST: u8 = 2u8;
+    // const MODE_WHITELIST: u8 = 3u8;
+
+    // const OP_ADD_SIGNER: u8 = 0u8;
+    // const OP_SWITCH_MODE: u8 = 1u8;
+    // const OP_ADD_TO_BLACKLIST: u8 = 2u8;
+    // const OP_ADD_TO_WHITELIST: u8 = 3u8;
+    // const OP_TRANSFER: u8 = 4u8;
 
     mapping signers: field => bool;
     mapping minimum_signature_count: bool => u8;
@@ -107,8 +108,9 @@ program bastion.aleo {
         Mapping::set(mode, true, new_mode);
     }
 
-    transition transfer(receiver: address, amount: u64) {
-        assert_eq(proposal.operation, OP_ADD_SIGNER);
-        credits.leo/transfer_public_to_private(receiver, amount)
+    transition transfer_public_to_private_bastion(proposal: Proposal, receiver: address, amount: u64) -> credits.leo/credits {
+        assert_eq(proposal.operation, 4u8);
+        return credits.leo/transfer_public_to_private(receiver, amount) then finalize(proposal, Poseidon2::hash_to_field(receiver));
     }
+    finalize 
 }
