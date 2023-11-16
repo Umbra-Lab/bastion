@@ -1,24 +1,24 @@
 import credits.leo;
 
 program bastion.aleo {
-    // const MODE_FROZEN: u8 = 0u8;
-    // const MODE_ENABLED: u8 = 1u8;
-    // const MODE_BLACKLIST: u8 = 2u8;
-    // const MODE_WHITELIST: u8 = 3u8;
+    const MODE_FROZEN: u8 = 0u8;
+    const MODE_ENABLED: u8 = 1u8;
+    const MODE_BLACKLIST: u8 = 2u8;
+    const MODE_WHITELIST: u8 = 3u8;
 
-    // const OP_ADD_SIGNER: u8 = 0u8;
-    // const OP_SWITCH_MODE: u8 = 1u8;
-    // const OP_ADD_TO_BLACKLIST: u8 = 2u8;
-    // const OP_ADD_TO_WHITELIST: u8 = 3u8;
-    // const OP_TRANSFER: u8 = 4u8;
+    const OP_ADD_SIGNER: u8 = 0u8;
+    const OP_SWITCH_MODE: u8 = 1u8;
+    const OP_ADD_TO_BLACKLIST: u8 = 2u8;
+    const OP_ADD_TO_WHITELIST: u8 = 3u8;
+    const OP_TRANSFER: u8 = 4u8;
 
     mapping signers: field => bool;
     mapping minimum_signature_count: bool => u8;
     mapping proposals: Proposal => u8;
     mapping signatures: Signature => bool;
     mapping initialized: bool => bool;
-    mapping whitelist: address => bool;
-    mapping blacklist: address => bool;
+    mapping whitelist: field => bool;
+    mapping blacklist: field => bool;
     mapping mode: bool => u8;
 
     struct Proposal {
@@ -42,9 +42,11 @@ program bastion.aleo {
         Mapping::set(initialized, true, true);
     }
 
-    transition add_signer(proposal: Proposal) {
+    transition add_signer(proposal: Proposal, target: address) {
         assert_eq(proposal.operation, OP_ADD_SIGNER);
-        return then finalize(proposal, Poseidon2::hash_to_field(self.caller));
+        let hashed_address: field = Poseidon2::hash_to_field(target);
+        assert_eq(proposal.receiver, hashed_address);
+        return then finalize(proposal, hashed_address);
     }
     finalize add_signer(proposal: Proposal, signer: field) {
         let signature_count: u8 = Mapping::get(proposals, proposal);
@@ -53,8 +55,8 @@ program bastion.aleo {
         Mapping::set(signers, signer, true);
     }
 
-    transition propose(id: u64, operation: u8, amount: u64) {
-        return then finalize(Proposal { id, operation, amount }, Poseidon2::hash_to_field(self.caller));
+    transition propose(id: u64, operation: u8, amount: u64, receiver: address) {
+        return then finalize(Proposal { id, operation, amount, receiver: Poseidon2::hash_to_field(receiver) }, Poseidon2::hash_to_field(self.caller));
     }
     finalize propose(proposal: Proposal, proposer: field) {
         assert(Mapping::contains(signers, proposer));
@@ -77,40 +79,62 @@ program bastion.aleo {
         Mapping::set(signatures, signature, true);
     }
  
-    transition add_to_blacklist(receiver: address) {
-        assert_eq(proposal.operation, OP_ADD_SIGNER);
-        return then finalize(receiver);
+    transition add_to_blacklist(proposal: Proposal, target: address) {
+        assert_eq(proposal.operation, OP_ADD_TO_BLACKLIST);
+        let hashed_address: field = Poseidon2::hash_to_field(target);
+        assert_eq(proposal.receiver, hashed_address);
+        return then finalize(proposal);
     }
-    finalize add_to_blacklist(receiver: address) {
-        let current_mode: u8 = Mapping::get_or_use(mode, true, 0u8);
-        assert_eq(current_mode, MODE_BLACKLIST);
-        Mapping::set(blacklist, receiver, true);
+    finalize add_to_blacklist(proposal: Proposal) {
+        let signature_count: u8 = Mapping::get(proposals, proposal);
+        let required_signature_count: u8 = Mapping::get_or_use(minimum_signature_count, true, 1u8);
+        assert(signature_count >= required_signature_count);
+        Mapping::set(blacklist, proposal.receiver, true);
     }
 
-    transition add_to_whitelist(target: address) {
+    transition add_to_whitelist(proposal: Proposal, target: address) {
         assert_eq(proposal.operation, OP_ADD_TO_WHITELIST);
         let hashed_address: field = Poseidon2::hash_to_field(target);
         assert_eq(proposal.receiver, hashed_address);
-        return then finalize(hashed_address);
+        return then finalize(proposal);
     }
-    finalize add_to_whitelist(target: address) {
-        let current_mode: u8 = Mapping::get_or_use(mode, true, 0u8);
-        assert_eq(current_mode, MODE_WHITELIST);
-        Mapping::set(whitelist, receiver, true);
+    finalize add_to_whitelist(proposal: Proposal) {
+        let signature_count: u8 = Mapping::get(proposals, proposal);
+        let required_signature_count: u8 = Mapping::get_or_use(minimum_signature_count, true, 1u8);
+        assert(signature_count >= required_signature_count);
+        Mapping::set(whitelist, proposal.receiver, true);
     }
 
-    transition switch_mode(new_mode: u8) {
-        assert_eq(proposal.operation, OP_ADD_SIGNER);
+    transition switch_mode(proposal: Proposal, new_mode: u8) {
+        assert_eq(proposal.operation, OP_SWITCH_MODE);
         assert(new_mode < 4u8);
-        return then finalize(new_mode);
+        return then finalize(proposal, new_mode);
     }
-    finalize switch_mode(new_mode: u8) {
+    finalize switch_mode(proposal: Proposal, new_mode: u8) {
+        let signature_count: u8 = Mapping::get(proposals, proposal);
+        let required_signature_count: u8 = Mapping::get_or_use(minimum_signature_count, true, 1u8);
+        assert(signature_count >= required_signature_count);
         Mapping::set(mode, true, new_mode);
     }
 
     transition transfer_public_to_private_bastion(proposal: Proposal, receiver: address, amount: u64) -> credits.leo/credits {
-        assert_eq(proposal.operation, 4u8);
-        return credits.leo/transfer_public_to_private(receiver, amount) then finalize(proposal, Poseidon2::hash_to_field(receiver));
+        assert_eq(proposal.operation, OP_TRANSFER);
+        assert_eq(proposal.amount, amount);
+        let hashed_address: field = Poseidon2::hash_to_field(receiver);
+        assert_eq(proposal.receiver, hashed_address);
+        return credits.leo/transfer_public_to_private(receiver, amount) then finalize(proposal);
     }
-    finalize 
+    finalize transfer_public_to_private_bastion(proposal: Proposal) {
+        let current_mode: u8 = Mapping::get_or_use(mode, true, 0u8);
+        assert_neq(current_mode, MODE_FROZEN);
+        if(current_mode == MODE_BLACKLIST) {
+            assert(!Mapping::contains(blacklist, proposal.receiver));
+        }
+        if(current_mode == MODE_WHITELIST) {
+            assert(Mapping::contains(whitelist, proposal.receiver));
+        }
+        let signature_count: u8 = Mapping::get(proposals, proposal);
+        let required_signature_count: u8 = Mapping::get_or_use(minimum_signature_count, true, 1u8);
+        assert(signature_count >= required_signature_count);
+    }
 }
