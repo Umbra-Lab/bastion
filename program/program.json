@@ -1,6 +1,6 @@
 {
     "program": "bastion.aleo",
     "version": "0.0.0",
-    "description": "Account abstraction for Aleo",
+    "description": "Account abstraction",
     "license": "MIT"
 }
