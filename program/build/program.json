@@ -1,6 +1,0 @@
-{
-    "program": "bastion.aleo",
-    "version": "0.0.0",
-    "description": "Account abstraction for Aleo",
-    "license": "MIT"
-}
