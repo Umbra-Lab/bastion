@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import {
   Deployment,
   WalletAdapterNetwork,
-  WalletNotConnectedError,Transaction
+  WalletNotConnectedError, Transaction
 } from "@demox-labs/aleo-wallet-adapter-base";
 import app from "../apps.json";
 import { Input } from "antd";
@@ -333,22 +333,43 @@ finalize set_minimum_signature_count:
   };
   return (
     <div>
-      <button onClick={handleClick}> Create a Bastion</button>
-      <button disabled={!bastionID}
-        onClick={() => {
-          localStorage.setItem("id", bastionID);
-          navigate("/dashboard");
-        }}
-      >
-        Import a Bastion
-      </button>
-      <Input
-        placeholder="Bastion ID"
-        value={bastionID}
-        onChange={(event) => {
-          setBastionID(event.target.value);
-        }}
-      />
+
+
+      <div id="content " className="mr-10 ml-10">
+        <h1 className="text-center text-4xl mx-16 my-16	font-sans	"><b>Welcome to Bastion!</b></h1>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris aliquet tellus nunc, eu egestas turpis
+          scelerisque id. Aenean non mattis libero. Donec sed commodo felis. Duis in bibendum nisi. Praesent non nisl
+          ut justo gravida pretium in nec leo. Sed ac ornare sem. Donec non tellus et lectus tempor suscipit.</p>
+
+        <div id="create-box" className=" my-10 border border-color rounded-lg p-6 text-center bg-[#fdc074]">
+          <p>Haven't created a basion yet?</p>
+          <button onClick={handleClick} className=" mt-10 py-3 px-6 rounded-lg text-white bg-[#f97d16]"> Create a Bastion</button>
+
+        </div>
+        <div id="create-box" className=" my-10 border border-color rounded-lg p-6 text-center bg-[#28c9e8]">
+          <p>Have a Bastion?</p>
+          <button disabled={!bastionID}
+          className=" my-10 py-3 px-6 rounded-lg text-white disabled:bg-[#a8eff9] bg-[#0ca9ca]"
+            onClick={() => {
+              localStorage.setItem("id", bastionID);
+              navigate("/dashboard");
+            }}
+          >
+            Import a Bastion
+          </button>
+          <Input
+          
+            placeholder="Bastion ID"
+            value={bastionID}
+            onChange={(event) => {
+              setBastionID(event.target.value);
+            }}
+          />
+        </div>
+
+      </div>
     </div>
+
+
   );
 };

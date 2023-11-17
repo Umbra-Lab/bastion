@@ -15,7 +15,6 @@ import { Welcome } from "./welcome";
 import { Create } from "./create ";
 import { Import } from "./import";
 import Dashboard from "./dashboard";
-
 // Default styles that can be overridden by your app
 
 export const App: FC = () => {
@@ -28,7 +27,8 @@ export const App: FC = () => {
     []
   );
 
-  return (
+  return ( 
+    
     <WalletProvider
       wallets={wallets}
       decryptPermission={DecryptPermission.AutoDecrypt}
@@ -36,7 +36,10 @@ export const App: FC = () => {
       autoConnect
     >
       <WalletModalProvider>
+      <div className="w-full flex flex-row justify-between p-10 items-center">
+        <img src="/logo-h@0.5x.png" className="h-32" alt=""/>
         <WalletMultiButton />
+        </div>
         <Routes>
           <Route path="/" element={<Welcome />}></Route>
           <Route path="/import" element={<Import />}></Route>
@@ -45,5 +48,6 @@ export const App: FC = () => {
         </Routes>
       </WalletModalProvider>
     </WalletProvider>
+
   );
 };
