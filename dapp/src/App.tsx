@@ -1,6 +1,9 @@
 import React, { FC, useMemo } from "react";
 import { WalletProvider } from "@demox-labs/aleo-wallet-adapter-react";
-import { WalletModalProvider, WalletMultiButton } from "@demox-labs/aleo-wallet-adapter-reactui";
+import {
+  WalletModalProvider,
+  WalletMultiButton,
+} from "@demox-labs/aleo-wallet-adapter-reactui";
 import { LeoWalletAdapter } from "@demox-labs/aleo-wallet-adapter-leo";
 import {
   DecryptPermission,
@@ -11,9 +14,9 @@ import "@demox-labs/aleo-wallet-adapter-reactui/styles.css";
 import { Welcome } from "./welcome";
 import { Create } from "./create ";
 import { Import } from "./import";
+import Dashboard from "./dashboard";
 
 // Default styles that can be overridden by your app
-
 
 export const App: FC = () => {
   const wallets = useMemo(
@@ -28,17 +31,18 @@ export const App: FC = () => {
   return (
     <WalletProvider
       wallets={wallets}
-      decryptPermission={DecryptPermission.UponRequest}
+      decryptPermission={DecryptPermission.AutoDecrypt}
       network={WalletAdapterNetwork.Testnet}
       autoConnect
     >
       <WalletModalProvider>
-    <WalletMultiButton/>
-    <Routes>
-    <Route path="/" element={<Welcome/>}></Route>
-      <Route path="/import" element={<Import/>}></Route>
-      <Route path="/create" element={<Create/>}></Route>
-    </Routes>
+        <WalletMultiButton />
+        <Routes>
+          <Route path="/" element={<Welcome />}></Route>
+          <Route path="/import" element={<Import />}></Route>
+          <Route path="/create" element={<Create />}></Route>
+          <Route path="/dashboard" element={<Dashboard />}></Route>
+        </Routes>
       </WalletModalProvider>
     </WalletProvider>
   );
