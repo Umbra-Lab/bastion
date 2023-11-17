@@ -53,6 +53,7 @@ program bastion.aleo {
         let required_signature_count: u8 = Mapping::get_or_use(minimum_signature_count, true, 1u8);
         assert(signature_count >= required_signature_count);
         Mapping::set(signers, signer, true);
+        Mapping::remove(proposals, proposal);
     }
 
     transition propose(id: u64, operation: u8, amount: u64, receiver: address) {
@@ -90,6 +91,7 @@ program bastion.aleo {
         let required_signature_count: u8 = Mapping::get_or_use(minimum_signature_count, true, 1u8);
         assert(signature_count >= required_signature_count);
         Mapping::set(blacklist, proposal.receiver, true);
+        Mapping::remove(proposals, proposal);
     }
 
     transition add_to_whitelist(proposal: Proposal, target: address) {
@@ -103,6 +105,7 @@ program bastion.aleo {
         let required_signature_count: u8 = Mapping::get_or_use(minimum_signature_count, true, 1u8);
         assert(signature_count >= required_signature_count);
         Mapping::set(whitelist, proposal.receiver, true);
+        Mapping::remove(proposals, proposal);
     }
 
     transition switch_mode(proposal: Proposal, new_mode: u8) {
@@ -115,6 +118,7 @@ program bastion.aleo {
         let required_signature_count: u8 = Mapping::get_or_use(minimum_signature_count, true, 1u8);
         assert(signature_count >= required_signature_count);
         Mapping::set(mode, true, new_mode);
+        Mapping::remove(proposals, proposal);
     }
 
     transition transfer_to_private(proposal: Proposal, receiver: address, amount: u64) -> shadowfi_token_shadow_v1_1.leo/ShadowToken {
@@ -136,6 +140,7 @@ program bastion.aleo {
         let signature_count: u8 = Mapping::get(proposals, proposal);
         let required_signature_count: u8 = Mapping::get_or_use(minimum_signature_count, true, 1u8);
         assert(signature_count >= required_signature_count);
+        Mapping::remove(proposals, proposal);
     }
 
     transition transfer(proposal: Proposal, receiver: address, amount: u64) {
@@ -157,6 +162,7 @@ program bastion.aleo {
         let signature_count: u8 = Mapping::get(proposals, proposal);
         let required_signature_count: u8 = Mapping::get_or_use(minimum_signature_count, true, 1u8);
         assert(signature_count >= required_signature_count);
+        Mapping::remove(proposals, proposal);
     }
 
     transition deposit(token: shadowfi_token_shadow_v1_1.leo/ShadowToken, amount: u64) -> shadowfi_token_shadow_v1_1.leo/ShadowToken {
