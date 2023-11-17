@@ -1,6 +1,6 @@
 import ReactDOM from 'react-dom/client'
 import {App} from './App.tsx'
-import './index.css'
+import './App.css'
 import "@demox-labs/aleo-wallet-adapter-reactui/styles.css"
 import React from 'react'
 import { BrowserRouter } from 'react-router-dom'

@@ -7,6 +7,8 @@
     "deploy_fee": 8000000,
     "propose_fee": 5000000,
      "base_call_id": "bastion_",
-     "prpose_function": "propose"
+     "propose_function": "propose",
+     "init_function": "init",
+     "init_fee": 5000000
   }
 }

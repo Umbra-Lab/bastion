@@ -10,11 +10,13 @@ import { useWallet } from "@demox-labs/aleo-wallet-adapter-react";
 import { Button, Cascader, Input, InputNumber } from "antd";
 const Dashboard: React.FC = () => {
   const { publicKey, requestTransaction } = useWallet();
+
   const [bastionID, setBastionID] = useState<any>("Bastion id");
   const [operation, setOpeartion] = useState<any>();
   const [proposalId, setProposalId] = useState<any>();
   const [amount, setAmount] = useState<any>();
   const [address, setAddress] = useState<any>();
+
   interface Option {
     value: number;
     label: string;
@@ -44,6 +46,14 @@ const Dashboard: React.FC = () => {
       label: "Transfer",
     },
   ];
+
+  const modes: Option[] = [
+    { value: 0, label: "Frozen" },
+    { value: 1, label: "Enabled" },
+    { value: 2, label: "Blacklist" },
+    { value: 3, label: "Whitelist" },
+  ];
+
   const propose = async () => {
     if (!publicKey) throw new WalletNotConnectedError();
     const inputs = [proposalId, operation, amount, address];
@@ -51,7 +61,7 @@ const Dashboard: React.FC = () => {
       publicKey,
       WalletAdapterNetwork.Testnet,
       app.bastion.base_call_id + bastionID + ".aleo",
-      app.bastion.prpose_function,
+      app.bastion.propose_function,
       inputs,
       app.bastion.propose_fee
     );
@@ -59,12 +69,43 @@ const Dashboard: React.FC = () => {
       await requestTransaction(aleoTransaction);
     }
   };
-  const sign = async () =>{
-    
-  }
+  
+  const sign = async () => {
+    if (!publicKey) throw new WalletNotConnectedError();
+    const inputs = [proposalId, operation, amount, address];
+    const aleoTransaction = Transaction.createTransaction(
+      publicKey,
+      WalletAdapterNetwork.Testnet,
+      app.bastion.base_call_id + bastionID + ".aleo",
+      app.bastion.propose_function,
+      inputs,
+      app.bastion.propose_fee
+    );
+    if (requestTransaction) {
+      await requestTransaction(aleoTransaction);
+    }
+  };
+
+  const execute = async () => {
+    if (!publicKey) throw new WalletNotConnectedError();
+    const inputs = [proposalId, operation, amount, address];
+    const aleoTransaction = Transaction.createTransaction(
+      publicKey,
+      WalletAdapterNetwork.Testnet,
+      app.bastion.base_call_id + bastionID + ".aleo",
+      app.bastion.propose_function,
+      inputs,
+      app.bastion.propose_fee
+    );
+    if (requestTransaction) {
+      await requestTransaction(aleoTransaction);
+    }
+  };
+
   return (
     <div>
       <div>{bastionID}</div>
+
       <Input
         value={proposalId}
         placeholder="Proposal ID"
@@ -72,26 +113,43 @@ const Dashboard: React.FC = () => {
           setProposalId(event.target.value);
         }}
       />
+
       <Cascader
         options={items}
         placeholder={"Select A Operation"}
         value={operation}
         onChange={(value) => {
           setOpeartion(value);
+          console.log(operation);
         }}
       />
+
+
       <InputNumber
+        className={operation != 5 ? "hidden" : ""}
         placeholder="Amount"
         value={amount}
         onChange={(value) => {
           setAmount(value);
         }}
       />
+
       <Input
+        className={operation == 2 ? "hidden" : ""}
         placeholder="Address"
         value={address}
         onChange={(event) => {
           setAddress(event.target.value);
+        }}
+      />
+
+      <Cascader
+        className={operation != 2 ? "hidden" : ""}
+        options={modes}
+        placeholder={"Select A Mode"}
+        value={amount}
+        onChange={(value) => {
+          setAmount(value);
         }}
       />
 

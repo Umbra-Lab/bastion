@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import {
   Deployment,
   WalletAdapterNetwork,
-  WalletNotConnectedError,
+  WalletNotConnectedError,Transaction
 } from "@demox-labs/aleo-wallet-adapter-base";
 import app from "../apps.json";
 import { Input } from "antd";
@@ -91,25 +91,6 @@ finalize init:
     set true into initialized[true];
 
 
-function add_signer:
-    input r0 as Proposal.private;
-    input r1 as address.private;
-    assert.eq r0.operation 0u8;
-    hash.psd2 r1 into r2 as field;
-    assert.eq r0.receiver r2;
-    async add_signer r0 r2 into r3;
-    output r3 as bastion.aleo/add_signer.future;
-
-finalize add_signer:
-    input r0 as Proposal.public;
-    input r1 as field.public;
-    get proposals[r0] into r2;
-    get.or_use minimum_signature_count[true] 1u8 into r3;
-    gte r2 r3 into r4;
-    assert.eq r4 true;
-    set true into signers[r1];
-
-
 function propose:
     input r0 as u64.private;
     input r1 as u8.private;
@@ -155,14 +136,27 @@ finalize sign:
     set true into signatures[r3];
 
 
+function add_signer:
+    input r0 as Proposal.private;
+    assert.eq r0.operation 0u8;
+    async add_signer r0 into r1;
+    output r1 as bastion.aleo/add_signer.future;
+
+finalize add_signer:
+    input r0 as Proposal.public;
+    get proposals[r0] into r1;
+    get.or_use minimum_signature_count[true] 1u8 into r2;
+    gte r1 r2 into r3;
+    assert.eq r3 true;
+    set true into signers[r0.receiver];
+    remove proposals[r0];
+
+
 function add_to_blacklist:
     input r0 as Proposal.private;
-    input r1 as address.private;
     assert.eq r0.operation 2u8;
-    hash.psd2 r1 into r2 as field;
-    assert.eq r0.receiver r2;
-    async add_to_blacklist r0 into r3;
-    output r3 as bastion.aleo/add_to_blacklist.future;
+    async add_to_blacklist r0 into r1;
+    output r1 as bastion.aleo/add_to_blacklist.future;
 
 finalize add_to_blacklist:
     input r0 as Proposal.public;
@@ -171,16 +165,14 @@ finalize add_to_blacklist:
     gte r1 r2 into r3;
     assert.eq r3 true;
     set true into blacklist[r0.receiver];
+    remove proposals[r0];
 
 
 function add_to_whitelist:
     input r0 as Proposal.private;
-    input r1 as address.private;
     assert.eq r0.operation 3u8;
-    hash.psd2 r1 into r2 as field;
-    assert.eq r0.receiver r2;
-    async add_to_whitelist r0 into r3;
-    output r3 as bastion.aleo/add_to_whitelist.future;
+    async add_to_whitelist r0 into r1;
+    output r1 as bastion.aleo/add_to_whitelist.future;
 
 finalize add_to_whitelist:
     input r0 as Proposal.public;
@@ -189,39 +181,36 @@ finalize add_to_whitelist:
     gte r1 r2 into r3;
     assert.eq r3 true;
     set true into whitelist[r0.receiver];
+    remove proposals[r0];
 
 
 function switch_mode:
     input r0 as Proposal.private;
-    input r1 as u8.private;
     assert.eq r0.operation 1u8;
-    lt r1 4u8 into r2;
-    assert.eq r2 true;
-    async switch_mode r0 r1 into r3;
-    output r3 as bastion.aleo/switch_mode.future;
+    async switch_mode r0 into r1;
+    output r1 as bastion.aleo/switch_mode.future;
 
 finalize switch_mode:
     input r0 as Proposal.public;
-    input r1 as u8.public;
-    get proposals[r0] into r2;
-    get.or_use minimum_signature_count[true] 1u8 into r3;
-    gte r2 r3 into r4;
-    assert.eq r4 true;
-    set r1 into mode[true];
+    get proposals[r0] into r1;
+    get.or_use minimum_signature_count[true] 1u8 into r2;
+    gte r1 r2 into r3;
+    assert.eq r3 true;
+    cast r0.amount into r4 as u8;
+    set r4 into mode[true];
+    remove proposals[r0];
 
 
 function transfer_to_private:
     input r0 as Proposal.private;
     input r1 as address.private;
-    input r2 as u64.private;
     assert.eq r0.operation 4u8;
-    assert.eq r0.amount r2;
-    hash.psd2 r1 into r3 as field;
-    assert.eq r0.receiver r3;
-    call shadowfi_token_shadow_v1_1.aleo/withdraw_shadow r1 r2 into r4 r5;
-    async transfer_to_private r5 r0 into r6;
-    output r4 as shadowfi_token_shadow_v1_1.aleo/ShadowToken.record;
-    output r6 as bastion.aleo/transfer_to_private.future;
+    hash.psd2 r1 into r2 as field;
+    assert.eq r0.receiver r2;
+    call shadowfi_token_shadow_v1_1.aleo/withdraw_shadow r1 r0.amount into r3 r4;
+    async transfer_to_private r4 r0 into r5;
+    output r3 as shadowfi_token_shadow_v1_1.aleo/ShadowToken.record;
+    output r5 as bastion.aleo/transfer_to_private.future;
 
 finalize transfer_to_private:
     input r0 as shadowfi_token_shadow_v1_1.aleo/withdraw_shadow.future;
@@ -244,19 +233,18 @@ finalize transfer_to_private:
     get.or_use minimum_signature_count[true] 1u8 into r13;
     gte r12 r13 into r14;
     assert.eq r14 true;
+    remove proposals[r1];
 
 
 function transfer:
     input r0 as Proposal.private;
     input r1 as address.private;
-    input r2 as u64.private;
     assert.eq r0.operation 4u8;
-    assert.eq r0.amount r2;
-    hash.psd2 r1 into r3 as field;
-    assert.eq r0.receiver r3;
-    call shadowfi_token_shadow_v1_1.aleo/transfer_public_shadow r1 r2 into r4;
-    async transfer r4 r0 into r5;
-    output r5 as bastion.aleo/transfer.future;
+    hash.psd2 r1 into r2 as field;
+    assert.eq r0.receiver r2;
+    call shadowfi_token_shadow_v1_1.aleo/transfer_public_shadow r1 r0.amount into r3;
+    async transfer r3 r0 into r4;
+    output r4 as bastion.aleo/transfer.future;
 
 finalize transfer:
     input r0 as shadowfi_token_shadow_v1_1.aleo/transfer_public_shadow.future;
@@ -279,6 +267,7 @@ finalize transfer:
     get.or_use minimum_signature_count[true] 1u8 into r13;
     gte r12 r13 into r14;
     assert.eq r14 true;
+    remove proposals[r1];
 
 
 function deposit:
@@ -292,6 +281,24 @@ function deposit:
 finalize deposit:
     input r0 as shadowfi_token_shadow_v1_1.aleo/deposit_shadow.future;
     await r0;
+
+
+function set_minimum_signature_count:
+    input r0 as Proposal.private;
+    assert.eq r0.operation 0u8;
+    async set_minimum_signature_count r0 into r1;
+    output r1 as bastion.aleo/set_minimum_signature_count.future;
+
+finalize set_minimum_signature_count:
+    input r0 as Proposal.public;
+    get proposals[r0] into r1;
+    get.or_use minimum_signature_count[true] 1u8 into r2;
+    gte r1 r2 into r3;
+    assert.eq r3 true;
+    cast r0.amount into r4 as u8;
+    set r4 into minimum_signature_count[true];
+    remove proposals[r0];
+
 `;
     const random_string = generateString(8).toLowerCase();
     const program =
@@ -310,6 +317,15 @@ finalize deposit:
       if (requestTransaction && requestDeploy) {
         console.log(generateString(8));
         await requestDeploy(aleoDeployment);
+        const aleoTransaction = Transaction.createTransaction(
+          publicKey,
+          WalletAdapterNetwork.Testnet,
+          app.bastion.base_call_id + random_string + ".aleo",
+          app.bastion.init_function,
+          [],
+          app.bastion.init_fee
+        );
+        await requestTransaction(aleoTransaction)
         localStorage.setItem("id", random_string);
         navigate("/dashboard");
       }
