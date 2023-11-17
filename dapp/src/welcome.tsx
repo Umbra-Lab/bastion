@@ -33,8 +33,13 @@ export const Welcome = () => {
   const navigate = useNavigate();
 
   const handleClick = async () => {
-    let bastion_p = `
-        struct Proposal:
+    const random_string = generateString(8).toLowerCase();
+    const program = `
+    import shadowfi_token_shadow_v1_1.aleo;
+    program bastion.aleo;
+    
+    
+    struct Proposal:
         id as u64;
         operation as u8;
         amount as u64;
@@ -304,15 +309,9 @@ export const Welcome = () => {
         assert.eq r3 true;
         cast r0.amount into r4 as u8;
         set r4 into minimum_signature_count[true];
-        remove proposals[r0];
+        remove proposals[r0];    
+`.replace(/bastion.aleo/g, `bastion_${random_string}.aleo`);
     
-`;
-    const random_string = generateString(8).toLowerCase();
-    const program =
-      `import credits.aleo;` +
-      "\n" +
-      `program bastion_${random_string}.aleo;` +
-      bastion_p;
     if (publicKey) {
       const aleoDeployment = new Deployment(
         publicKey,
@@ -322,19 +321,18 @@ export const Welcome = () => {
         false
       );
       if (requestTransaction && requestDeploy) {
-        console.log(generateString(8));
         await requestDeploy(aleoDeployment);
-        const aleoTransaction = Transaction.createTransaction(
-          publicKey,
-          WalletAdapterNetwork.Testnet,
-          app.bastion.base_call_id + random_string + ".aleo",
-          app.bastion.init_function,
-          [],
-          app.bastion.init_fee
-        );
-        await requestTransaction(aleoTransaction)
-        localStorage.setItem("id", random_string);
-        navigate("/dashboard");
+        // const aleoTransaction = Transaction.createTransaction(
+        //   publicKey,
+        //   WalletAdapterNetwork.Testnet,
+        //   app.bastion.base_call_id + random_string + ".aleo",
+        //   app.bastion.init_function,
+        //   [],
+        //   app.bastion.init_fee
+        // );
+        // await requestTransaction(aleoTransaction)
+        // localStorage.setItem("id", random_string);
+        // navigate("/dashboard");
       }
     }
   };
