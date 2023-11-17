@@ -6,11 +6,11 @@ program bastion.aleo {
     const MODE_WHITELIST: u8 = 3u8;
 
     const OP_ADD_SIGNER: u8 = 0u8;
-    const OP_SET_MINIMUM_SIGNATURE_COUNT: u8 = 0u8;
     const OP_SWITCH_MODE: u8 = 1u8;
     const OP_ADD_TO_BLACKLIST: u8 = 2u8;
     const OP_ADD_TO_WHITELIST: u8 = 3u8;
     const OP_TRANSFER: u8 = 4u8;
+    const OP_SET_MINIMUM_SIGNATURE_COUNT: u8 = 5u8;
 
     mapping signers: field => bool;
     mapping minimum_signature_count: bool => u8;

@@ -28,25 +28,29 @@ const Dashboard: React.FC = () => {
 
   const items: Option[] = [
     {
-      value: 1,
+      value: 0,
       label: "Add Signer",
     },
     {
-      value: 2,
+      value: 1,
       label: "Switch Mode",
     },
     {
-      value: 3,
+      value: 2,
       label: "Add to Blacklist",
     },
     {
-      value: 4,
+      value: 3,
       label: "Add to Whitelist",
     },
     {
-      value: 5,
+      value: 4,
       label: "Transfer",
     },
+    {
+      value: 5,
+      label: "Set Minimum Signature Count"
+    }
   ];
 
   const modes: Option[] = [
@@ -58,7 +62,7 @@ const Dashboard: React.FC = () => {
 
   const propose = async () => {
     if (!publicKey) throw new WalletNotConnectedError();
-    const inputs = [proposalId, operation, amount, address];
+    const inputs = [proposalId, operation, amount+"u64", address];
     const aleoTransaction = Transaction.createTransaction(
       publicKey,
       WalletAdapterNetwork.Testnet,
@@ -74,14 +78,14 @@ const Dashboard: React.FC = () => {
 
   const sign = async () => {
     if (!publicKey) throw new WalletNotConnectedError();
-    const inputs = [proposalId, operation, amount, address];
+    const inputs = [JSON.stringify({id: proposalId+"u64",operation: operation+"u8",amount: amount+"u64",address})];
     const aleoTransaction = Transaction.createTransaction(
       publicKey,
       WalletAdapterNetwork.Testnet,
       app.bastion.base_call_id + bastionId + ".aleo",
-      app.bastion.propose_function,
+      app.bastion.sign_function,
       inputs,
-      app.bastion.propose_fee
+      app.bastion.sign_fee
     );
     if (requestTransaction) {
       await requestTransaction(aleoTransaction);
@@ -128,10 +132,32 @@ const Dashboard: React.FC = () => {
           }}
         />
 
+<<<<<<< HEAD
       </div>
 
 
       <div className="flex mb-5">
+=======
+      <Cascader
+        options={items}
+        placeholder={"Select A Operation"}
+        value={operation}
+        onChange={(value) => {
+          setOpeartion(value);
+        }}
+      />
+
+
+      <InputNumber
+        className={operation != 5 ? "hidden" : ""}
+        placeholder="Amount"
+        value={amount}
+        onChange={(event) => {
+          setAmount(event);
+
+        }}
+      />
+>>>>>>> c9fef50 (add sign)
 
         <InputNumber
           className={operation != 5 ? "hidden" : ""}

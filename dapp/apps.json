@@ -9,6 +9,9 @@
      "base_call_id": "bastion_",
      "propose_function": "propose",
      "init_function": "init",
-     "init_fee": 5000000
+     "init_fee": 5000000,
+     "sign_function": "sign",
+      "sign_fee": 5000000
+
   }
 }
