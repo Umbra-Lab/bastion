@@ -6,12 +6,12 @@ import {
 } from "@demox-labs/aleo-wallet-adapter-base";
 import app from "../apps.json";
 import { useWallet } from "@demox-labs/aleo-wallet-adapter-react";
-
 import { Button, Cascader, Input, InputNumber } from "antd";
+
 const Dashboard: React.FC = () => {
   const { publicKey, requestTransaction } = useWallet();
 
-  const [bastionID, setBastionID] = useState<any>("Bastion id");
+  const [bastionId, setBastionId] = useState<any>();
   const [operation, setOpeartion] = useState<any>();
   const [proposalId, setProposalId] = useState<any>();
   const [amount, setAmount] = useState<any>();
@@ -21,9 +21,11 @@ const Dashboard: React.FC = () => {
     value: number;
     label: string;
   }
+  
   useEffect(() => {
-    setBastionID(localStorage.getItem("id"));
+    setBastionId(localStorage.getItem("id"));
   });
+
   const items: Option[] = [
     {
       value: 1,
@@ -35,7 +37,7 @@ const Dashboard: React.FC = () => {
     },
     {
       value: 3,
-      label: "Add to BlackList",
+      label: "Add to Blacklist",
     },
     {
       value: 4,
@@ -60,7 +62,7 @@ const Dashboard: React.FC = () => {
     const aleoTransaction = Transaction.createTransaction(
       publicKey,
       WalletAdapterNetwork.Testnet,
-      app.bastion.base_call_id + bastionID + ".aleo",
+      app.bastion.base_call_id + bastionId + ".aleo",
       app.bastion.propose_function,
       inputs,
       app.bastion.propose_fee
@@ -76,7 +78,7 @@ const Dashboard: React.FC = () => {
     const aleoTransaction = Transaction.createTransaction(
       publicKey,
       WalletAdapterNetwork.Testnet,
-      app.bastion.base_call_id + bastionID + ".aleo",
+      app.bastion.base_call_id + bastionId + ".aleo",
       app.bastion.propose_function,
       inputs,
       app.bastion.propose_fee
@@ -87,19 +89,19 @@ const Dashboard: React.FC = () => {
   };
 
   const execute = async () => {
-    if (!publicKey) throw new WalletNotConnectedError();
-    const inputs = [proposalId, operation, amount, address];
-    const aleoTransaction = Transaction.createTransaction(
-      publicKey,
-      WalletAdapterNetwork.Testnet,
-      app.bastion.base_call_id + bastionID + ".aleo",
-      app.bastion.propose_function,
-      inputs,
-      app.bastion.propose_fee
-    );
-    if (requestTransaction) {
-      await requestTransaction(aleoTransaction);
-    }
+    // if (!publicKey) throw new WalletNotConnectedError();
+    // const inputs = [proposalId, operation, amount, address];
+    // const aleoTransaction = Transaction.createTransaction(
+    //   publicKey,
+    //   WalletAdapterNetwork.Testnet,
+    //   app.bastion.base_call_id + bastionId + ".aleo",
+    //   app.bastion.propose_function,
+    //   inputs,
+    //   app.bastion.propose_fee
+    // );
+    // if (requestTransaction) {
+    //   await requestTransaction(aleoTransaction);
+    // }
   };
 
   return (
