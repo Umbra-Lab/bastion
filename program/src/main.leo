@@ -1,4 +1,4 @@
-import credits.leo;
+import shadowfi_token_shadow_v1_1.leo;
 
 program bastion.aleo {
     const MODE_FROZEN: u8 = 0u8;
@@ -117,14 +117,14 @@ program bastion.aleo {
         Mapping::set(mode, true, new_mode);
     }
 
-    transition transfer_public_to_private_bastion(proposal: Proposal, receiver: address, amount: u64) -> credits.leo/credits {
+    transition transfer_to_private(proposal: Proposal, receiver: address, amount: u64) -> shadowfi_token_shadow_v1_1.leo/ShadowToken {
         assert_eq(proposal.operation, OP_TRANSFER);
         assert_eq(proposal.amount, amount);
         let hashed_address: field = Poseidon2::hash_to_field(receiver);
         assert_eq(proposal.receiver, hashed_address);
-        return credits.leo/transfer_public_to_private(receiver, amount) then finalize(proposal);
+        return shadowfi_token_shadow_v1_1.leo/withdraw_shadow(receiver, amount) then finalize(proposal);
     }
-    finalize transfer_public_to_private_bastion(proposal: Proposal) {
+    finalize transfer_to_private(proposal: Proposal) {
         let current_mode: u8 = Mapping::get_or_use(mode, true, 0u8);
         assert_neq(current_mode, MODE_FROZEN);
         if(current_mode == MODE_BLACKLIST) {
@@ -136,5 +136,30 @@ program bastion.aleo {
         let signature_count: u8 = Mapping::get(proposals, proposal);
         let required_signature_count: u8 = Mapping::get_or_use(minimum_signature_count, true, 1u8);
         assert(signature_count >= required_signature_count);
+    }
+
+    transition transfer(proposal: Proposal, receiver: address, amount: u64) {
+        assert_eq(proposal.operation, OP_TRANSFER);
+        assert_eq(proposal.amount, amount);
+        let hashed_address: field = Poseidon2::hash_to_field(receiver);
+        assert_eq(proposal.receiver, hashed_address);
+        return shadowfi_token_shadow_v1_1.leo/transfer_public_shadow(receiver, amount) then finalize(proposal);
+    }
+    finalize transfer(proposal: Proposal) {
+        let current_mode: u8 = Mapping::get_or_use(mode, true, 0u8);
+        assert_neq(current_mode, MODE_FROZEN);
+        if(current_mode == MODE_BLACKLIST) {
+            assert(!Mapping::contains(blacklist, proposal.receiver));
+        }
+        if(current_mode == MODE_WHITELIST) {
+            assert(Mapping::contains(whitelist, proposal.receiver));
+        }
+        let signature_count: u8 = Mapping::get(proposals, proposal);
+        let required_signature_count: u8 = Mapping::get_or_use(minimum_signature_count, true, 1u8);
+        assert(signature_count >= required_signature_count);
+    }
+
+    transition deposit(token: shadowfi_token_shadow_v1_1.leo/ShadowToken, amount: u64) -> shadowfi_token_shadow_v1_1.leo/ShadowToken {
+        return shadowfi_token_shadow_v1_1.leo/deposit_shadow(token, amount);
     }
 }
