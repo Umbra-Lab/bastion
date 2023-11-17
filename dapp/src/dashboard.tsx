@@ -69,7 +69,7 @@ const Dashboard: React.FC = () => {
       await requestTransaction(aleoTransaction);
     }
   };
-  
+
   const sign = async () => {
     if (!publicKey) throw new WalletNotConnectedError();
     const inputs = [proposalId, operation, amount, address];
@@ -103,65 +103,79 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="flex flex-col">
       <div>{bastionID}</div>
+      <div className="flex my-5">
+        <Input
+          value={proposalId}
+          placeholder="Proposal ID"
+          className="mr-5"
+          onChange={(event) => {
+            setProposalId(event.target.value);
+          }}
+        />
 
-      <Input
-        value={proposalId}
-        placeholder="Proposal ID"
-        onChange={(event) => {
-          setProposalId(event.target.value);
-        }}
-      />
+        <Cascader
+          options={items}
+          placeholder={"Select A Operation"}
+          className=""
+          value={operation}
+          onChange={(value) => {
+            setOpeartion(value);
+            console.log(operation);
+          }}
+        />
 
-      <Cascader
-        options={items}
-        placeholder={"Select A Operation"}
-        value={operation}
-        onChange={(value) => {
-          setOpeartion(value);
-          console.log(operation);
-        }}
-      />
+      </div>
 
 
-      <InputNumber
-        className={operation != 5 ? "hidden" : ""}
-        placeholder="Amount"
-        value={amount}
-        onChange={(value) => {
-          setAmount(value);
-        }}
-      />
+      <div className="flex mb-5">
 
-      <Input
-        className={operation == 2 ? "hidden" : ""}
-        placeholder="Address"
-        value={address}
-        onChange={(event) => {
-          setAddress(event.target.value);
-        }}
-      />
+        <InputNumber
+          className={operation != 5 ? "hidden" : ""}
+          placeholder="Amount"
+          value={amount}
 
-      <Cascader
-        className={operation != 2 ? "hidden" : ""}
-        options={modes}
-        placeholder={"Select A Mode"}
-        value={amount}
-        onChange={(value) => {
-          setAmount(value);
-        }}
-      />
+          onChange={(value) => {
+            setAmount(value);
+          }}
+        />
+      </div>
+      <div className="flex mb-5">
+        <Input
+          className={operation == 2 ? "hidden" : ""}
+          placeholder="Address"
+          value={address}
+          onChange={(event) => {
+            setAddress(event.target.value);
+          }}
+        />
+      </div>
+      <div className="flex mb-5">
 
-      <Button onClick={async () => await propose()}>Propose</Button>
-      <Button
-        onClick={async () => {
-          await sign();
-        }}
-      >
-        Sign
-      </Button>
-      <Button>Execute</Button>
+        <Cascader
+          className={operation != 2 ? "hidden" : ""}
+          options={modes}
+          placeholder={"Select A Mode"}
+          value={amount}
+          onChange={(value) => {
+            setAmount(value);
+          }}
+        />
+      </div>
+
+      <div className="flex  flex-row justify-between w-1/3 m-auto">
+        <Button onClick={async () => await propose()}>Propose</Button>
+        <Button
+          onClick={async () => {
+            await sign();
+          }}
+        >
+          Sign
+        </Button>
+        <Button>Execute</Button>
+      </div>
+
     </div>
   );
 };
