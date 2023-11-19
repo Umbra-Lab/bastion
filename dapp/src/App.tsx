@@ -12,7 +12,7 @@ import {
 import { Route, Routes } from "react-router-dom";
 import "@demox-labs/aleo-wallet-adapter-reactui/styles.css";
 import { Welcome } from "./welcome";
-import Dashboard from "./dashboard";
+// import Dashboard from "./dashboard";
 // Default styles that can be overridden by your app
 
 export const App: FC = () => {
@@ -40,7 +40,7 @@ export const App: FC = () => {
         </div>
         <Routes>
           <Route path="/" element={<Welcome />}></Route>
-          <Route path="/dashboard" element={<Dashboard />}></Route>
+          {/* <Route path="/dashboard" element={<Dashboard />}></Route> */}
         </Routes>
       </WalletModalProvider>
     </WalletProvider>

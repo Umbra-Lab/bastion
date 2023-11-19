@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   Deployment,
   WalletAdapterNetwork,
-  WalletNotConnectedError, Transaction
+  WalletNotConnectedError, Transaction, AleoDeployment
 } from "@demox-labs/aleo-wallet-adapter-base";
 import app from "../apps.json";
 import { Input } from "antd";
@@ -313,7 +313,7 @@ export const Welcome = () => {
 `.replace(/bastion.aleo/g, `bastion_${random_string}.aleo`);
     
     if (publicKey) {
-      const aleoDeployment = new Deployment(
+      const aleoDeployment: AleoDeployment = new Deployment(
         publicKey,
         WalletAdapterNetwork.Testnet,
         program,
@@ -321,7 +321,12 @@ export const Welcome = () => {
         false
       );
       if (requestTransaction && requestDeploy) {
-        await requestDeploy(aleoDeployment);
+        console.log("hjelsfdsf");
+        try{
+          await requestDeploy(aleoDeployment);
+        }catch(e) {
+          console.log(e);
+        }
         // const aleoTransaction = Transaction.createTransaction(
         //   publicKey,
         //   WalletAdapterNetwork.Testnet,

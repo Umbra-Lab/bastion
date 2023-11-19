@@ -4,7 +4,7 @@
     "id": "bastion.aleo",
     "add_blacklist_functon": "add_to_blacklist",
     "add_blacklist_fee": 3000000,
-    "deploy_fee": 8000000,
+    "deploy_fee": 14000000,
     "propose_fee": 5000000,
      "base_call_id": "bastion_",
      "propose_function": "propose",

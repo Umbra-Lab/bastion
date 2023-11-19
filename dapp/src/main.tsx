@@ -1,9 +1,11 @@
 import ReactDOM from 'react-dom/client'
-import {App} from './App.tsx'
+// import {App} from './App.tsx'
 import './App.css'
 import "@demox-labs/aleo-wallet-adapter-reactui/styles.css"
 import React from 'react'
 import { BrowserRouter } from 'react-router-dom'
+// import { Welcome } from './welcome.tsx'
+import { App } from './App.tsx'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
 
