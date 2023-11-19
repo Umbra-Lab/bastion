@@ -13,6 +13,7 @@ program bastion.aleo {
     const OP_SET_MINIMUM_SIGNATURE_COUNT: u8 = 5u8;
 
     mapping signers: field => bool;
+    mapping signers_count: bool => u8;
     mapping minimum_signature_count: bool => u8;
     mapping proposals: Proposal => u8;
     mapping signatures: Signature => bool;
@@ -74,6 +75,7 @@ program bastion.aleo {
         let signature_count: u8 = Mapping::get(proposals, proposal);
         let required_signature_count: u8 = Mapping::get_or_use(minimum_signature_count, true, 1u8);
         assert(signature_count >= required_signature_count);
+        Mapping::set(signers_count, true, Mapping::get_or_use(signers_count, true, 0u8) + 1u8);
         Mapping::set(signers, proposal.receiver, true);
         Mapping::remove(proposals, proposal);
     }
